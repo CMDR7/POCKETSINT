@@ -89,6 +89,41 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
     return () => clearInterval(timer);
   }, [updateSystemStatus]);
 
+  // Connect to actual Web Battery Status API if available in the client browser
+  useEffect(() => {
+    let batteryInstance: any = null;
+
+    const handleBatteryUpdate = () => {
+      if (batteryInstance) {
+        useDeviceStore.setState((prev) => ({
+          systemStatus: {
+            ...prev.systemStatus,
+            batteryLevel: Math.round(batteryInstance.level * 100),
+            batteryCharging: batteryInstance.charging
+          }
+        }));
+      }
+    };
+
+    if (typeof navigator !== 'undefined' && (navigator as any).getBattery) {
+      (navigator as any).getBattery().then((battery: any) => {
+        batteryInstance = battery;
+        handleBatteryUpdate();
+        battery.addEventListener('levelchange', handleBatteryUpdate);
+        battery.addEventListener('chargingchange', handleBatteryUpdate);
+      }).catch((err: any) => {
+        console.warn('Battery status API error:', err);
+      });
+    }
+
+    return () => {
+      if (batteryInstance) {
+        batteryInstance.removeEventListener('levelchange', handleBatteryUpdate);
+        batteryInstance.removeEventListener('chargingchange', handleBatteryUpdate);
+      }
+    };
+  }, []);
+
   // Alternate blinking LEDs for micro-forensic simulation
   useEffect(() => {
     const ledTimer = setInterval(() => {
@@ -189,10 +224,13 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
 
             {/* Battery Level */}
             <div className="flex items-center gap-1.5 border-l border-border-cyber pl-3">
+              {systemStatus.batteryCharging && (
+                <span className="text-green-highlight text-[9px] font-bold animate-pulse">▲ CHARG •</span>
+              )}
               <span className="text-gray-300 font-mono text-[11px] font-bold">{systemStatus.batteryLevel}%</span>
               <div className="relative w-7 h-3.5 border border-gray-500 p-[1px] flex items-center bg-black/40">
                 <div 
-                  className="h-full bg-green-highlight shadow-[0_0_4px_#39ff14]" 
+                  className={`h-full bg-green-highlight shadow-[0_0_4px_#39ff14] ${systemStatus.batteryCharging ? 'animate-pulse' : ''}`} 
                   style={{ width: `${systemStatus.batteryLevel}%` }}
                 />
                 <div className="absolute right-[-2px] w-[2px] h-1.5 bg-gray-500 top-[3px]" />

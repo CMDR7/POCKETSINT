@@ -156,8 +156,9 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
   systemStatus: {
     cpuUsage: 12,
     ramUsage: 42,
-    storageUsage: 18,
+    storageUsage: 14,
     batteryLevel: 98,
+    batteryCharging: false,
     gpsLocked: true,
     temperature: 24,
     signalStrength: 4,
@@ -166,20 +167,58 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
   
   updateSystemStatus: () => {
     set((state) => {
-      // Create slight variations in the telemetry metrics to simulate dynamic micro-controller output
-      const deltaCpu = Math.floor(Math.random() * 9) - 4;
-      const deltaRam = Math.floor(Math.random() * 3) - 1;
-      const cpu = Math.max(5, Math.min(95, state.systemStatus.cpuUsage + deltaCpu));
-      const ram = Math.max(30, Math.min(80, state.systemStatus.ramUsage + deltaRam));
-      
-      // Calculate random low fluctuations
+      // 1. Dynamic CPU usage simulation with rapid decay if spiked
+      const currentCpu = state.systemStatus.cpuUsage;
+      let cpu = currentCpu;
+      if (currentCpu > 32) {
+        cpu = Math.max(12, Math.round(currentCpu - (Math.random() * 18 + 10)));
+      } else {
+        const deltaCpu = Math.floor(Math.random() * 5) - 2;
+        cpu = Math.max(6, Math.min(28, currentCpu + deltaCpu));
+      }
+
+      // 2. Query actual chrome heap memory RAM utilization or simulate
+      let ram = state.systemStatus.ramUsage;
+      if (typeof window !== 'undefined' && (window.performance as any)?.memory) {
+        const mem = (window.performance as any).memory;
+        ram = Math.round((mem.usedJSHeapSize / mem.jsHeapSizeLimit) * 100);
+        ram = Math.max(25, Math.min(85, ram));
+      } else {
+        const deltaRam = Math.floor(Math.random() * 3) - 1;
+        ram = Math.max(38, Math.min(48, state.systemStatus.ramUsage + deltaRam));
+      }
+
+      // 3. Compute actual physical LocalStorage database footprint percentage as "DB_USE"
+      let storage = 14;
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          let totalBytes = 0;
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key) {
+              const val = localStorage.getItem(key);
+              totalBytes += (key.length + (val ? val.length : 0)) * 2;
+            }
+          }
+          // Scale it so that it ranges naturally. Baseline is 12%, and every 1KB of data adds ~1% of DB_USE
+          storage = Math.min(99, 12 + Math.round(totalBytes / 1024));
+        } catch (e) {}
+      }
+
+      // 4. Smooth slow-draining battery if live battery API is unavailable
+      let battery = state.systemStatus.batteryLevel;
+      if (!state.systemStatus.batteryCharging) {
+        battery = Math.max(1, battery - (Math.random() > 0.99 ? 1 : 0));
+      }
+
       return {
         systemStatus: {
           ...state.systemStatus,
           cpuUsage: cpu,
           ramUsage: ram,
-          temperature: +(24.0 + (Math.random() * 0.8 - 0.4)).toFixed(1),
-          batteryLevel: Math.max(1, state.systemStatus.batteryLevel - (Math.random() > 0.95 ? 1 : 0))
+          storageUsage: storage,
+          temperature: +(24.0 + (Math.random() * 0.6 - 0.3)).toFixed(1),
+          batteryLevel: battery,
         }
       };
     });
@@ -188,6 +227,14 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
   history: getSavedHistory(),
   
   addHistoryItem: (item) => {
+    // Spike CPU to simulate database write & heavy crypto/search processing
+    set((state) => ({
+      systemStatus: {
+        ...state.systemStatus,
+        cpuUsage: Math.floor(Math.random() * 20) + 75
+      }
+    }));
+
     const newItem: ScanHistoryItem = {
       ...item,
       id: `SCAN-${Date.now()}-${Math.floor(Math.random() * 1000)}`,

@@ -32,6 +32,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ onNavigate }) => {
   const { history, toggleFavorite, deleteHistoryItem, clearHistory, systemStatus, playBeep } = useDeviceStore();
   const [pinnedFilter, setPinnedFilter] = useState<boolean>(false);
   const [logText, setLogText] = useState<string>('POCKETSINT kernel loaded successfully. Standing by for investigator target telemetry...\nSYSTEM: Operational integrity secure.\nGPS: Position calibrated to local sector.');
+  const [showRecommendedUse, setShowRecommendedUse] = useState<boolean>(false);
 
   const displayedHistory = pinnedFilter 
     ? history.filter(h => h.favorite) 
@@ -87,6 +88,42 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ onNavigate }) => {
                 {m.label}
               </button>
             ))}
+          </div>
+
+          {/* Recommended Use Policy and Information disclosure */}
+          <div className="pt-2">
+            <button
+              onClick={() => { playBeep('click'); setShowRecommendedUse(!showRecommendedUse); }}
+              className={`w-full py-2 border text-center font-orbitron font-extrabold tracking-widest text-[10px] sm:text-xs transition-all duration-150 rounded-none cursor-pointer uppercase flex items-center justify-center gap-2 ${showRecommendedUse ? 'bg-cyan-accent/15 border-cyan-accent text-white' : 'border-border-cyber/80 text-muted-slate hover:text-white hover:bg-border-cyber/10'}`}
+              id="recommended-use-btn"
+            >
+              <Lock className="w-3.5 h-3.5 text-cyan-accent" />
+              <span>RECOMMENDED USE & LEGAL DISCLAIMER</span>
+              <span className="text-[9px] font-mono bg-cyan-accent/10 px-1.5 py-0.2 text-cyan-accent border border-cyan-accent/20">NOTICE</span>
+            </button>
+
+            {showRecommendedUse && (
+              <div className="mt-3 p-4 border border-border-cyber/60 bg-[#070a0d]/95 animate-fadeIn font-mono text-xs space-y-3 text-gray-300">
+                <div className="flex items-center gap-2 border-b border-border-cyber/30 pb-2 text-cyan-accent">
+                  <Lock className="w-4 h-4 text-glow-cyan" />
+                  <span className="font-orbitron font-bold uppercase tracking-wider">POCKETSINT OPERATIONAL CHARTER</span>
+                </div>
+                <div className="space-y-3 leading-relaxed">
+                  <p>
+                    <strong className="text-white">1. EDUCATIONAL PURPOSES ONLY:</strong> This application is developed solely for training, academic research, and interactive defense simulation purposes. It must <span className="text-crit-red font-bold">never</span> be used to infringe upon the privacy, safety, or legal rights of any individual or organization.
+                  </p>
+                  <p>
+                    <strong className="text-white">2. PUBLIC INFORMATION SCOPE:</strong> Any scanning or search queries generated within this system access exclusively <strong className="text-white">publicly available index data</strong> and open databases. No private, internal, or unauthorized networks are targeted.
+                  </p>
+                  <p>
+                    <strong className="text-white">3. LOCAL CLIENT-SIDE SANDBOX:</strong> The application runs fully sandboxed within your local web browser. It accesses only local, browser-exposed system parameters such as the <strong className="text-white">Battery Status API</strong>, the JavaScript virtual machine's heap memory footprint (<strong className="text-white">RAM utilization</strong>), and file uploads loaded directly into secure memory buffers.
+                  </p>
+                  <p>
+                    <strong className="text-white">4. ABSOLUTE PRIVACY:</strong> All target histories, search formulations, EXIF details, and generated diagnostic reports are saved purely inside your browser's local sandbox storage. <strong className="text-cyan-accent">We do not collect, maintain, store, transmit, or modify any user data or query results.</strong> Your research remains 100% confidential and localized.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

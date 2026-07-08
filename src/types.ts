@@ -8,6 +8,7 @@ export interface SystemStatus {
   ramUsage: number;
   storageUsage: number;
   batteryLevel: number;
+  batteryCharging?: boolean;
   gpsLocked: boolean;
   temperature: number;
   signalStrength: number;
