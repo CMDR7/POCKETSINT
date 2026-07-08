@@ -1,0 +1,6 @@
+{
+  "name": "POCKETSINT",
+  "description": "A production-quality handheld cyber-forensics and OSINT terminal interface designed for investigators, journalists, and researchers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

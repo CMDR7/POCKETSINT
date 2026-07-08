@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=VT323&display=swap');
+
+@theme {
+  --font-sans: "Rajdhani", system-ui, -apple-system, sans-serif;
+  --font-orbitron: "Orbitron", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-dotmatrix: "VT323", monospace;
+
+  /* Theme colors matching POCKETSINT requirements */
+  --color-bg-cyber: #050505;
+  --color-panel-cyber: #101214;
+  --color-border-cyber: #1E252C;
+  
+  --color-cyan-accent: #00f0ff;
+  --color-blue-accent: #0066ff;
+  --color-green-highlight: #39ff14;
+  --color-warn-amber: #ffb300;
+  --color-crit-red: #ff3b30;
+  --color-text-gray: #d1d5db;
+  --color-muted-slate: #6b7280;
+}
+
+/* Custom cyberdeck retro effects */
+@layer utilities {
+  .text-glow-cyan {
+    text-shadow: 0 0 4px rgba(0, 240, 255, 0.4), 0 0 10px rgba(0, 240, 255, 0.2);
+  }
+  .text-glow-green {
+    text-shadow: 0 0 4px rgba(57, 255, 20, 0.4), 0 0 10px rgba(57, 255, 20, 0.2);
+  }
+  .text-glow-red {
+    text-shadow: 0 0 4px rgba(255, 59, 48, 0.4), 0 0 10px rgba(255, 59, 48, 0.2);
+  }
+  .text-glow-amber {
+    text-shadow: 0 0 4px rgba(255, 179, 0, 0.4), 0 0 10px rgba(255, 179, 0, 0.2);
+  }
+  .box-glow-cyan {
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.2), inset 0 0 4px rgba(0, 240, 255, 0.1);
+  }
+  .box-glow-green {
+    box-shadow: 0 0 8px rgba(57, 255, 20, 0.2), inset 0 0 4px rgba(57, 255, 20, 0.1);
+  }
+}
+
+/* Global scrollbars for OSINT terminal */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0c0e;
+  border-left: 1px solid #1E252C;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e252c;
+  border: 1px solid #00f0ff;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00f0ff;
+}
+
+/* CRT scanline simulation */
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 99;
+  pointer-events: none;
+}
+
+/* Grid overlay background */
+.grid-overlay {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(30, 37, 44, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 37, 44, 0.15) 1px, transparent 1px);
+}
+
+/* Hexagonal background details */
+.hex-pattern {
+  background-color: #050505;
+  background-image: radial-gradient(circle, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* CRT flickering simulation */
+@keyframes crt-flicker {
+  0% { opacity: 0.985; }
+  50% { opacity: 0.995; }
+  100% { opacity: 0.985; }
+}
+
+.crt-flicker-effect {
+  animation: crt-flicker 0.15s infinite;
+}
+
+/* LCD Matrix Screen Glow */
+.screen-glow {
+  position: relative;
+}
+.screen-glow::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.03) 0%, rgba(0, 0, 0, 0) 80%);
+  pointer-events: none;
+  z-index: 98;
+}
+
+/* Digital waveform canvas/pulse styling */
+.pulse-glow {
+  animation: pulse-border 2s infinite alternate;
+}
+
+@keyframes pulse-border {
+  0% {
+    border-color: rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.1);
+  }
+  100% {
+    border-color: rgba(0, 240, 255, 0.8);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+  }
+}
+
+/* Sleek Interface Theme Utilities */
+.panel-hardware {
+  background: #101214;
+  border: 1px solid #1E252C;
+  position: relative;
+}
+.panel-hardware::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  border-top: 1px solid #00f2ff;
+  border-left: 1px solid #00f2ff;
+  pointer-events: none;
+}
+.panel-hardware::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  border-bottom: 1px solid #00f2ff;
+  border-right: 1px solid #00f2ff;
+  pointer-events: none;
+}
+
+.glow-cyan {
+  text-shadow: 0 0 8px rgba(0, 242, 255, 0.6);
+}
+
+.border-glow-cyan {
+  box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+}
+
+/* Sleek Peach Ticker & Marquee Utilities */
+@keyframes ticker-marquee {
+  0% { transform: translate3d(100%, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+.animate-ticker {
+  animation: ticker-marquee 12s linear infinite;
+}
+
+.dot-matrix-screen {
+  background-color: #000000;
+  position: relative;
+  overflow: hidden;
+}
+
+.dot-matrix-screen::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.5) 1px, transparent 1px);
+  background-size: 2px 2px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+
+
