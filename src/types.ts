@@ -70,6 +70,14 @@ export interface DomainIntelResult {
     expires?: string;
     nameservers?: string[];
   };
+  geoInfo?: {
+    country: string;
+    city: string;
+    isp: string;
+    asn: string;
+    lat: number;
+    lng: number;
+  };
 }
 
 export interface ImageForensicsResult {

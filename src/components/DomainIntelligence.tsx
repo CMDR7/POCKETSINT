@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useDeviceStore } from '../store/deviceStore';
 import { DomainIntelResult, DnsRecord } from '../types';
-import { Globe, Search, Loader2, Calendar, Clipboard, Check, ChevronDown, ChevronUp, ShieldAlert, Cpu, HelpCircle } from 'lucide-react';
+import { Globe, Search, Loader2, Calendar, Clipboard, Check, ChevronDown, ChevronUp, ShieldAlert, Cpu, HelpCircle, MapPin, ExternalLink } from 'lucide-react';
 
 export const DomainIntelligence: React.FC = () => {
   const { addHistoryItem, playBeep } = useDeviceStore();
@@ -18,7 +18,8 @@ export const DomainIntelligence: React.FC = () => {
   const [openSection, setOpenSection] = useState<{ [key: string]: boolean }>({
     dns: true,
     whois: true,
-    ssl: true
+    ssl: true,
+    geo: true
   });
 
   const handleScan = (e: React.FormEvent) => {
@@ -49,6 +50,16 @@ export const DomainIntelligence: React.FC = () => {
         { type: 'SOA', name: domain, value: `ns1.cloudflare.com. dns.cloudflare.com. 2026070701 10000 2400 604800 3600`, ttl: 3600 }
       ];
 
+      const countries = ['United States', 'Germany', 'Netherlands', 'Japan', 'Canada', 'United Kingdom', 'Australia', 'Switzerland'];
+      const cities = ['San Francisco', 'Frankfurt', 'Amsterdam', 'Tokyo', 'Toronto', 'London', 'Sydney', 'Zurich'];
+      const isps = ['Cloudflare, Inc.', 'Amazon Technologies Inc.', 'DigitalOcean, LLC', 'Google Cloud Platform', 'Linode, LLC'];
+      const asns = ['AS13335', 'AS16509', 'AS14061', 'AS15169', 'AS63949'];
+      const lats = [37.7749, 50.1109, 52.3676, 35.6762, 43.6532, 51.5074, -33.8688, 47.3769];
+      const lngs = [-122.4194, 8.6821, 4.9041, 139.6503, -79.3832, -0.1278, 151.2093, 8.5417];
+
+      const geoIdx = charSum % countries.length;
+      const ispIdx = charSum % isps.length;
+
       const newResult: DomainIntelResult = {
         domain,
         ipAddress: `104.21.${charSum % 90}.${ipPart}`,
@@ -67,6 +78,14 @@ export const DomainIntelligence: React.FC = () => {
           created: new Date(Date.now() - 5 * 365 * 24 * 3600 * 1000).toLocaleDateString(),
           expires: new Date(Date.now() + 2 * 365 * 24 * 3600 * 1000).toLocaleDateString(),
           nameservers: ['ns1.cloudflare.com', 'ns2.cloudflare.com']
+        },
+        geoInfo: {
+          country: countries[geoIdx],
+          city: cities[geoIdx],
+          isp: isps[ispIdx],
+          asn: asns[ispIdx],
+          lat: lats[geoIdx],
+          lng: lngs[geoIdx]
         }
       };
 
@@ -78,7 +97,7 @@ export const DomainIntelligence: React.FC = () => {
         module: 'DOMAIN_INTEL',
         target: domain,
         category: 'Domain Intelligence',
-        summary: `Resolved to IP: ${newResult.ipAddress}. Registrar: ${newResult.whoisInfo?.registrar}`,
+        summary: `Resolved to IP: ${newResult.ipAddress}. Host Location: ${newResult.geoInfo?.city}, ${newResult.geoInfo?.country}`,
         favorite: false,
         details: newResult
       });
@@ -291,6 +310,81 @@ export const DomainIntelligence: React.FC = () => {
             </div>
           )}
 
+          {/* Collapsible Card 4: GEOGRAPHIC HOST IP LOCATION & TERRAIN PLOT */}
+          {result.geoInfo && (
+            <div className="panel-hardware">
+              <button 
+                onClick={() => toggleSection('geo')}
+                className="w-full px-4 py-3 flex items-center justify-between font-orbitron font-bold text-xs text-gray-200 border-b border-border-cyber/60 bg-black/40 text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-green-highlight" />
+                  <span>GEOGRAPHIC HOST IP LOCATION & TERRAIN PLOT</span>
+                </div>
+                {openSection.geo ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+
+              {openSection.geo && (
+                <div className="p-4 space-y-4 animate-fadeIn">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
+                    <div className="space-y-1">
+                      <span className="text-muted-slate text-[10px]">COUNTRY / REGION:</span>
+                      <span className="text-white block font-bold">{result.geoInfo.country}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-muted-slate text-[10px]">CITY / METRO:</span>
+                      <span className="text-white block font-bold">{result.geoInfo.city}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-muted-slate text-[10px]">NETWORK ISP:</span>
+                      <span className="text-green-highlight block font-bold">{result.geoInfo.isp}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-muted-slate text-[10px]">AUTONOMOUS SYSTEM:</span>
+                      <span className="text-cyan-accent block font-bold">{result.geoInfo.asn}</span>
+                    </div>
+                  </div>
+
+                  <div className="border border-border-cyber bg-[#050505] relative overflow-hidden flex flex-col h-[200px]">
+                    <iframe
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${result.geoInfo.lng - 0.05}%2C${result.geoInfo.lat - 0.03}%2C${result.geoInfo.lng + 0.05}%2C${result.geoInfo.lat + 0.03}&layer=mapnik&marker=${result.geoInfo.lat}%2C${result.geoInfo.lng}`}
+                      className="w-full h-full bg-black/30 border-none"
+                      style={{ 
+                        filter: 'invert(0.9) hue-rotate(180deg) brightness(0.85) contrast(1.2)'
+                      }}
+                      title="IP Server Geographic Location Map"
+                    />
+                    <div className="absolute bottom-2 left-2 bg-black/90 border border-border-cyber/60 px-2 py-0.5 text-[9px] font-mono text-cyan-accent z-10 uppercase flex items-center gap-1">
+                      <Globe className="w-3 h-3 text-cyan-accent" />
+                      <span>SECURE LOCAL HOST-IP GEOLOCATION SECTOR</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 text-xs font-mono">
+                    <a 
+                      href={`https://www.openstreetmap.org/?mlat=${result.geoInfo.lat}&mlon=${result.geoInfo.lng}#map=12/${result.geoInfo.lat}/${result.geoInfo.lng}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex-grow flex items-center justify-center gap-1.5 px-3 py-1.5 border border-border-cyber bg-black hover:bg-green-highlight/10 hover:border-green-highlight text-[10px] font-bold font-mono text-green-highlight uppercase tracking-wider text-center cursor-pointer transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>OSM GEOPLOT</span>
+                    </a>
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${result.geoInfo.lat},${result.geoInfo.lng}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex-grow flex items-center justify-center gap-1.5 px-3 py-1.5 border border-border-cyber bg-black hover:bg-cyan-accent/10 hover:border-cyan-accent text-[10px] font-bold font-mono text-cyan-accent uppercase tracking-wider text-center cursor-pointer transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>GOOGLE GEOPLOT</span>
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       )}
 
@@ -365,6 +459,10 @@ export const DomainIntelligence: React.FC = () => {
                       <li className="flex items-start gap-1.5">
                         <span className="text-green-highlight font-bold">▪</span>
                         <span><strong className="text-white font-bold">NS & SOA:</strong> Identifies zones of authority and zone transfer timers.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-green-highlight font-bold">▪</span>
+                        <span><strong className="text-white font-bold">IP GEOLOCATION:</strong> Decodes physical coordinates of resolved host server nodes for visual mapping and routing reconnaissance.</span>
                       </li>
                     </ul>
                   </div>

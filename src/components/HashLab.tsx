@@ -22,6 +22,120 @@ export const HashLab: React.FC = () => {
   const [identHash, setIdentHash] = useState('');
   const [identResults, setIdentResults] = useState<string[]>([]);
 
+  // Wordlist Mutation & Passphrase Strength state
+  const [seedWord, setSeedWord] = useState('');
+  const [leetMutate, setLeetMutate] = useState(true);
+  const [digitsMutate, setDigitsMutate] = useState(true);
+  const [capsMutate, setCapsMutate] = useState(true);
+  const [mutatedWords, setMutatedWords] = useState<{word: string; entropy: number; strength: 'WEAK' | 'MEDIUM' | 'STRONG'; crackTime: string}[]>([]);
+  const [copiedWord, setCopiedWord] = useState<string | null>(null);
+
+  const calculatePasswordEntropy = (pwd: string) => {
+    let charTypes = 0;
+    if (/[a-z]/.test(pwd)) charTypes += 26;
+    if (/[A-Z]/.test(pwd)) charTypes += 26;
+    if (/[0-9]/.test(pwd)) charTypes += 10;
+    if (/[^a-zA-Z0-9]/.test(pwd)) charTypes += 33;
+    if (charTypes === 0) return 0;
+    return Math.round(pwd.length * Math.log2(charTypes));
+  };
+
+  const getCrackTime = (entropy: number) => {
+    if (entropy < 28) return 'Instant (< 1 ms)';
+    if (entropy < 36) return 'Seconds to Minutes';
+    if (entropy < 46) return 'Hours to Days';
+    if (entropy < 60) return 'Months to Years';
+    return 'Centuries / Secure';
+  };
+
+  const getStrength = (entropy: number): 'WEAK' | 'MEDIUM' | 'STRONG' => {
+    if (entropy < 32) return 'WEAK';
+    if (entropy < 50) return 'MEDIUM';
+    return 'STRONG';
+  };
+
+  const runMutations = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!seedWord.trim()) return;
+    playBeep('click');
+    const base = seedWord.trim();
+    const list = new Set<string>();
+    list.add(base);
+
+    if (capsMutate) {
+      list.add(base.toUpperCase());
+      list.add(base.charAt(0).toUpperCase() + base.slice(1));
+      list.add(base.toLowerCase());
+    }
+
+    const toLeet = (w: string) => {
+      return w
+        .replace(/[aA]/g, '4')
+        .replace(/[eE]/g, '3')
+        .replace(/[iI]/g, '1')
+        .replace(/[oO]/g, '0')
+        .replace(/[sS]/g, '5')
+        .replace(/[tT]/g, '7');
+    };
+
+    const toLeetAlt = (w: string) => {
+      return w
+        .replace(/[aA]/g, '@')
+        .replace(/[eE]/g, '3')
+        .replace(/[iI]/g, '!')
+        .replace(/[oO]/g, '0')
+        .replace(/[sS]/g, '$');
+    };
+
+    const currentWords = Array.from(list);
+    if (leetMutate) {
+      currentWords.forEach(w => {
+        list.add(toLeet(w));
+        list.add(toLeetAlt(w));
+      });
+    }
+
+    if (digitsMutate) {
+      const activeWords = Array.from(list);
+      const suffixes = ['123', '1', '2026', '!', '@', '123456', '777'];
+      activeWords.forEach(w => {
+        suffixes.forEach(s => {
+          list.add(w + s);
+          list.add(w + '_' + s);
+        });
+      });
+    }
+
+    const resultsList = Array.from(list).slice(0, 15).map(word => {
+      const entropy = calculatePasswordEntropy(word);
+      return {
+        word,
+        entropy,
+        strength: getStrength(entropy),
+        crackTime: getCrackTime(entropy)
+      };
+    });
+
+    setMutatedWords(resultsList);
+    playBeep('complete');
+
+    addHistoryItem({
+      module: 'HASH_LAB',
+      target: `MUTATE: ${base}`,
+      category: 'Wordlist Mutator',
+      summary: `Generated ${resultsList.length} customized password mutations for target base string`,
+      favorite: false,
+      details: { seed: base, count: resultsList.length }
+    });
+  };
+
+  const copyWordValue = (word: string) => {
+    navigator.clipboard.writeText(word);
+    setCopiedWord(word);
+    playBeep('click');
+    setTimeout(() => setCopiedWord(null), 1500);
+  };
+
   // Simple, efficient JavaScript client-side hashing functions (built-in fallback algorithms)
   const cyrb128 = (str: string) => {
     let h1 = 1779033703, h2 = 3024733165, h3 = 3362453659, h4 = 502494951;
@@ -306,6 +420,124 @@ export const HashLab: React.FC = () => {
         </div>
       )}
 
+      {/* WORDLIST MUTATION & PASSPHRASE STRENGTH ANALYZER */}
+      <div className="panel-hardware">
+        <div className="border-b border-border-cyber px-4 py-3 bg-black/40 flex items-center justify-between">
+          <div className="flex items-center gap-2 font-orbitron font-bold text-xs text-gray-200">
+            <ShieldCheck className="w-4 h-4 text-crit-red" />
+            <span>TACTICAL WORDLIST MUTATOR & PASSPHRASE STRENGTH ANALYZER</span>
+          </div>
+          <span className="text-[10px] font-mono text-muted-slate uppercase">OFFLINE_MUTATION</span>
+        </div>
+
+        <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Settings & seed input form */}
+          <div className="space-y-4">
+            <form onSubmit={runMutations} className="space-y-3 font-mono text-xs text-gray-300">
+              <div className="space-y-1">
+                <label className="text-muted-slate block font-bold uppercase">Seed Base / Password:</label>
+                <input
+                  type="text"
+                  placeholder="e.g. pocketsint"
+                  value={seedWord}
+                  onChange={(e) => setSeedWord(e.target.value)}
+                  className="w-full bg-black border-2 border-border-cyber px-2.5 py-2 text-white focus:outline-none focus:border-crit-red placeholder:text-muted-slate"
+                  id="wordlist-seed-input"
+                />
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <span className="text-muted-slate font-bold uppercase block text-[10px]">Mutation Rules:</span>
+                
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={capsMutate}
+                    onChange={(e) => { playBeep('click'); setCapsMutate(e.target.checked); }}
+                    className="accent-crit-red"
+                  />
+                  <span>Case Variance (Caps/Lower/Sentence)</span>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={leetMutate}
+                    onChange={(e) => { playBeep('click'); setLeetMutate(e.target.checked); }}
+                    className="accent-crit-red"
+                  />
+                  <span>Leetspeak Translation (@, 3, 1, 0, $, etc)</span>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={digitsMutate}
+                    onChange={(e) => { playBeep('click'); setDigitsMutate(e.target.checked); }}
+                    className="accent-crit-red"
+                  />
+                  <span>Digit & Suffix Padding (123, 2026, !, @, etc)</span>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={!seedWord.trim()}
+                className="w-full py-2 bg-[#0a0c0e] hover:bg-crit-red/20 border border-crit-red text-crit-red font-orbitron font-extrabold tracking-widest text-xs transition-colors duration-150 cursor-pointer disabled:opacity-50"
+              >
+                GENERATE WORDLIST
+              </button>
+            </form>
+          </div>
+
+          {/* Results table list */}
+          <div className="lg:col-span-2 space-y-2">
+            <span className="font-mono text-[10px] text-muted-slate uppercase font-bold block">Mutated Target Wordlist & Entropy Matrix:</span>
+
+            {mutatedWords.length === 0 ? (
+              <div className="py-12 text-center text-xs font-mono text-muted-slate border border-dashed border-border-cyber/60">
+                ENTER A SEED KEY AND EXECUTE TO DEPLOY TARGET WORDLIST MUTATIONS.
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                {mutatedWords.map((item, idx) => (
+                  <div key={idx} className="border border-border-cyber/60 bg-black/40 p-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono animate-fadeIn">
+                    <div className="min-w-0 flex-grow">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-white font-bold break-all select-all">{item.word}</span>
+                        <span className={`text-[9px] px-1.5 py-0.2 font-bold font-mono border ${
+                          item.strength === 'STRONG' ? 'bg-green-highlight/15 border-green-highlight/30 text-green-highlight' :
+                          item.strength === 'MEDIUM' ? 'bg-warn-amber/15 border-warn-amber/30 text-warn-amber' :
+                          'bg-crit-red/15 border-crit-red/30 text-crit-red'
+                        }`}>{item.strength} ({item.entropy} bits)</span>
+                      </div>
+                      <div className="text-[10px] text-gray-400 pt-0.5">Est. Brute-Force Rate: <span className="text-cyan-accent font-bold">{item.crackTime}</span></div>
+                    </div>
+
+                    <button
+                      onClick={() => copyWordValue(item.word)}
+                      className="p-1 border border-border-cyber/80 hover:border-crit-red text-muted-slate hover:text-white transition-colors duration-150 cursor-pointer flex items-center justify-center gap-1 min-w-[80px]"
+                    >
+                      {copiedWord === item.word ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-green-highlight" />
+                          <span className="text-[9px] text-green-highlight">COPIED</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span className="text-[9px]">COPY</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* EDUCATIONAL OPERATIONS MANUAL */}
       <div className="space-y-3">
         <button
@@ -389,6 +621,12 @@ export const HashLab: React.FC = () => {
                         <span><strong className="text-white font-bold">128 Characters:</strong> SHA-512, SHA3-512, or BLAKE2b-512 deep ciphers.</span>
                       </li>
                     </ul>
+                  </div>
+                  <div className="pt-2 border-t border-border-cyber/30">
+                    <span className="text-white font-bold block mb-0.5 uppercase tracking-wide">3. WORDLIST MUTATION & PASSPHRASE STRENGTH RULES</span>
+                    <p className="text-muted-slate leading-relaxed">
+                      Customizes a seed keyword using industry-standard password cracking mutation filters. It calculates the theoretical <strong className="text-white font-bold">Shannons Entropy (bits)</strong> of each mutation and evaluates the real-world brute-force estimation based on character set complexity and string length.
+                    </p>
                   </div>
                 </div>
               </div>
