@@ -240,6 +240,47 @@ export const ReportGenerator: React.FC = () => {
     setTimeout(() => setReportCopied(false), 2000);
   };
 
+  const exportToPdf = () => {
+    playBeep('click');
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(compileHtmlReport());
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+      };
+    } else {
+      window.print();
+    }
+  };
+
+  const exportToJson = () => {
+    playBeep('click');
+    const content = compileJsonReport();
+    const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `pocketsint_recon_report_${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToHtml = () => {
+    playBeep('click');
+    const content = compileHtmlReport();
+    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `pocketsint_recon_report_${Date.now()}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const downloadReportFile = () => {
     playBeep('click');
     const content = selectedFormat === 'json' 
@@ -303,43 +344,51 @@ export const ReportGenerator: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-2 pt-6 border-t border-border-cyber/40 mt-4">
-            {selectedFormat === 'print' ? (
+          <div className="space-y-3 pt-6 border-t border-border-cyber/40 mt-4">
+            <span className="text-muted-slate font-bold uppercase block text-[10px] font-mono">QUICK SAVES:</span>
+            
+            <div className="grid grid-cols-1 gap-2">
               <button
-                onClick={triggerPrintWindow}
-                className="w-full py-2.5 bg-[#0a0c0e] hover:bg-warn-amber/20 border-2 border-warn-amber text-warn-amber font-orbitron font-extrabold tracking-widest text-xs transition-all duration-150 rounded-none cursor-pointer flex items-center justify-center gap-2"
+                onClick={exportToPdf}
+                className="w-full py-2 bg-[#0a0c0e] hover:bg-warn-amber/20 border border-warn-amber text-warn-amber font-orbitron font-extrabold tracking-widest text-[10px] sm:text-xs transition-all duration-150 rounded-none cursor-pointer flex items-center justify-center gap-2"
               >
-                <Printer className="w-4 h-4" />
-                <span>TRIGGER SYSTEM PRINT</span>
+                <Printer className="w-4 h-4 text-warn-amber animate-pulse" />
+                <span>SAVE AS PDF</span>
               </button>
-            ) : (
-              <>
-                <button
-                  onClick={downloadReportFile}
-                  className="w-full py-2.5 bg-[#0a0c0e] hover:bg-warn-amber/20 border-2 border-warn-amber text-warn-amber font-orbitron font-extrabold tracking-widest text-xs transition-all duration-150 rounded-none cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>EXPORT SYSTEM FILE</span>
-                </button>
 
-                <button
-                  onClick={copyToClipboard}
-                  className="w-full py-2 border border-border-cyber/80 hover:border-white hover:text-white font-mono text-[11px] transition-colors duration-150 cursor-pointer flex items-center justify-center gap-2 text-muted-slate"
-                >
-                  {reportCopied ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-green-highlight" />
-                      <span>COPIED TO CLIPBOARD</span>
-                    </>
-                  ) : (
-                    <>
-                      <FileCheck className="w-3.5 h-3.5" />
-                      <span>COPY RAW TEXT</span>
-                    </>
-                  )}
-                </button>
-              </>
-            )}
+              <button
+                onClick={exportToJson}
+                className="w-full py-2 bg-[#0a0c0e] hover:bg-cyan-accent/20 border border-cyan-accent text-cyan-accent font-orbitron font-extrabold tracking-widest text-[10px] sm:text-xs transition-all duration-150 rounded-none cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4 text-cyan-accent" />
+                <span>SAVE AS JSON</span>
+              </button>
+
+              <button
+                onClick={exportToHtml}
+                className="w-full py-2 bg-[#0a0c0e] hover:bg-green-highlight/20 border border-green-highlight text-green-highlight font-orbitron font-extrabold tracking-widest text-[10px] sm:text-xs transition-all duration-150 rounded-none cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4 text-green-highlight" />
+                <span>SAVE AS HTML</span>
+              </button>
+            </div>
+
+            <button
+              onClick={copyToClipboard}
+              className="w-full py-1.5 border border-border-cyber/80 hover:border-white hover:text-white font-mono text-[10px] transition-colors duration-150 cursor-pointer flex items-center justify-center gap-2 text-muted-slate mt-1"
+            >
+              {reportCopied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-green-highlight" />
+                  <span>COPIED TO CLIPBOARD</span>
+                </>
+              ) : (
+                <>
+                  <FileCheck className="w-3.5 h-3.5" />
+                  <span>COPY CURRENT PREVIEW</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 

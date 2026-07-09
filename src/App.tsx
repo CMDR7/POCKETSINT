@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+import { motion } from 'motion/react';
 import { useDeviceStore } from './store/deviceStore';
 import { ModuleId } from './types';
 import { DeviceShell } from './components/DeviceShell';
@@ -95,9 +96,15 @@ export default function App() {
       )}
 
       {/* 2. RENDER THE PRIMARY ACTIVE VIEWPORT */}
-      <div className="flex-grow">
+      <motion.div
+        key={activeModule}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+        className="flex-grow flex flex-col"
+      >
         {renderActiveModule()}
-      </div>
+      </motion.div>
 
     </DeviceShell>
   );

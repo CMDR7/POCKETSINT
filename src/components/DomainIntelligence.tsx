@@ -111,14 +111,14 @@ export const DomainIntelligence: React.FC = () => {
           <div className="relative flex-grow">
             <input 
               type="text" 
-              placeholder="ENTER TARGET DOMAIN (e.g. google.com, github.com)..."
+              placeholder="ENTER TARGET DOMAIN (e.g. google.com)..."
               value={domainInput}
               onChange={(e) => setDomainInput(e.target.value)}
               disabled={isScanning}
-              className="w-full bg-black border-2 border-border-cyber px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-green-highlight placeholder:text-muted-slate rounded-none"
+              className="w-full bg-black border-2 border-border-cyber pl-4 pr-28 py-3 font-mono text-sm text-white focus:outline-none focus:border-green-highlight placeholder:text-muted-slate rounded-none"
               id="domain-scan-input"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-mono text-muted-slate uppercase font-bold">PASSIVE_DNS</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-mono text-muted-slate uppercase font-bold select-none pointer-events-none">PASSIVE_DNS</span>
           </div>
           
           <button

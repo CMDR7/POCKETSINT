@@ -157,14 +157,14 @@ export const UsernameRecon: React.FC = () => {
           <div className="relative flex-grow">
             <input 
               type="text" 
-              placeholder="ENTER RECON USERNAME TARGET (e.g. Art_II, investigatorX)..."
+              placeholder="ENTER RECON USERNAME TARGET (e.g. Art_II)..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isScanning}
-              className="w-full bg-black border-2 border-border-cyber px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-blue-accent placeholder:text-muted-slate rounded-none"
+              className="w-full bg-black border-2 border-border-cyber pl-4 pr-36 py-3 font-mono text-sm text-white focus:outline-none focus:border-blue-accent placeholder:text-muted-slate rounded-none"
               id="recon-username-input"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-mono text-muted-slate uppercase">PASSIVE_URL_ENUM</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-mono text-muted-slate uppercase select-none pointer-events-none">PASSIVE_URL_ENUM</span>
           </div>
           
           <button
