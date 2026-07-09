@@ -115,4 +115,5 @@ export interface UserSettings {
   lowPowerMode: boolean;
   investigatorName: string;
   agencyCode: string;
+  theme?: 'neon-cyan' | 'monochrome';
 }

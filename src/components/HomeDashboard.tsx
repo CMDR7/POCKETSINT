@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { useDeviceStore } from '../store/deviceStore';
 import { ModuleId, ScanHistoryItem } from '../types';
+import { TerminalSystemStatus } from './TerminalSystemStatus';
 import { 
   Terminal, 
   Play, 
@@ -127,43 +128,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Tactical Signal Waveform Graphic & System Health Graph */}
-        <div className="w-full md:w-[280px] shrink-0 border border-border-cyber/60 bg-black/60 p-3 flex flex-col justify-between font-mono text-[11px] relative">
-          <div className="flex justify-between items-center text-[10px] border-b border-border-cyber/40 pb-1 mb-2">
-            <span className="text-muted-slate uppercase font-bold">WAVEFORM MONITOR</span>
-            <span className="text-green-highlight animate-pulse">● LIVE_FEED</span>
-          </div>
-          
-          {/* Animated Visual Canvas simulation for electronic warfare / signal */}
-          <div className="h-20 flex items-center justify-center gap-1 bg-black border border-border-cyber/40 overflow-hidden relative">
-            <div className="absolute inset-x-0 h-[1px] bg-cyan-accent/20" />
-            {[20, 45, 90, 30, 15, 60, 80, 50, 20, 75, 40, 95, 20, 60, 85, 30, 40, 10].map((h, i) => (
-              <div 
-                key={i} 
-                className="w-[3px] bg-cyan-accent transition-all duration-150" 
-                style={{ 
-                  height: `${Math.max(10, Math.min(95, h + (Math.floor(Math.random() * 30) - 15)))}%`,
-                  opacity: i % 2 === 0 ? 0.9 : 0.6
-                }} 
-              />
-            ))}
-          </div>
-
-          <div className="mt-3 space-y-1 text-[10px] text-gray-400">
-            <div className="flex justify-between">
-              <span>SATELLITE POSITION:</span>
-              <span className="text-white font-bold">148.91° W / 32.70° N</span>
-            </div>
-            <div className="flex justify-between">
-              <span>OSINT SECTOR:</span>
-              <span className="text-cyan-accent font-bold">SEC-ALPHA-9</span>
-            </div>
-            <div className="flex justify-between">
-              <span>ENCRYPTION DECK:</span>
-              <span className="text-green-highlight font-bold">AES-256-MIL</span>
-            </div>
-          </div>
-        </div>
+        {/* Realtime Complete System Telemetry Monitor */}
+        <TerminalSystemStatus />
 
       </div>
 

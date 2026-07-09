@@ -36,7 +36,8 @@ const defaultSettings: UserSettings = {
   hologramEffect: true,
   lowPowerMode: false,
   investigatorName: 'AGENT_X',
-  agencyCode: 'POCKETSINT-09'
+  agencyCode: 'POCKETSINT-09',
+  theme: 'neon-cyan'
 };
 
 // Simple synthesize audio engine using browser Web Audio API

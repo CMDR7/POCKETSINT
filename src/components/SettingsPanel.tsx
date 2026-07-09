@@ -127,6 +127,30 @@ export const SettingsPanel: React.FC = () => {
                 </button>
               </div>
 
+              {/* Chassis Visual Theme Toggle */}
+              <div className="flex items-center justify-between p-2.5 border border-border-cyber bg-black">
+                <div>
+                  <span className="text-white font-bold block">CHASSIS VISUAL THEME</span>
+                  <span className="text-[10px] text-muted-slate">Toggle between standard Neon Cyan emissions or high-contrast Monochrome.</span>
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => { playBeep('click'); updateSettings({ theme: 'neon-cyan' }); }}
+                    className={`px-2.5 py-1.5 border font-bold font-orbitron text-[10px] transition-all duration-150 cursor-pointer ${settings.theme !== 'monochrome' ? 'bg-cyan-accent/10 border-cyan-accent text-cyan-accent' : 'border-border-cyber text-muted-slate hover:text-white'}`}
+                  >
+                    CYAN
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { playBeep('click'); updateSettings({ theme: 'monochrome' }); }}
+                    className={`px-2.5 py-1.5 border font-bold font-orbitron text-[10px] transition-all duration-150 cursor-pointer ${settings.theme === 'monochrome' ? 'bg-white/10 border-white text-white' : 'border-border-cyber text-muted-slate hover:text-white'}`}
+                  >
+                    MONO
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

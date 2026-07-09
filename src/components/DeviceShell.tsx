@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useDeviceStore } from '../store/deviceStore';
 import { ModuleId } from '../types';
 import { 
@@ -29,7 +29,10 @@ import {
   Camera,
   Search,
   Volume2,
-  VolumeX
+  VolumeX,
+  Menu,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface DeviceShellProps {
@@ -72,6 +75,7 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
 
   const [timeStr, setTimeStr] = useState('');
   const [leds, setLeds] = useState({ sys: true, net: false, gps: true, mem: false });
+  const [navOpen, setNavOpen] = useState(false);
 
   // Update clock and simulate CPU/RAM micro-fluctuations
   useEffect(() => {
@@ -146,7 +150,7 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center p-2 sm:p-4 text-text-gray font-sans selection:bg-[#00f2ff] selection:text-black">
+    <div className={`min-h-screen bg-[#050505] flex items-center justify-center p-2 sm:p-4 text-text-gray font-sans selection:bg-cyan-accent selection:text-black ${settings.theme === 'monochrome' ? 'theme-monochrome' : ''}`}>
       
       {/* Outer Tactical Hardware Case Frame */}
       <div className="relative w-full max-w-[1280px] bg-[#101214] border-[12px] border-[#101214] outline outline-1 outline-[#1E252C] rounded-none shadow-[0_0_30px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col border-glow-cyan">
@@ -171,32 +175,32 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
           {/* Brand & Firmware */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-cyan-accent animate-pulse shadow-[0_0_8px_#00f0ff]" />
+              <span className="w-2 h-2 rounded-full bg-[#00f0ff] animate-pulse shadow-[0_0_8px_#00f0ff]" />
               <span className="font-orbitron font-extrabold tracking-widest text-cyan-accent text-sm text-glow-cyan">POCKETSINT</span>
             </div>
             <div className="hidden md:flex items-center gap-2 border-l border-border-cyber pl-3 text-muted-slate text-[10px]">
               <span>FW v4.9.0-CYBER</span>
               <span>•</span>
-              <span className="text-green-highlight">OPERATIONAL_MODE: HIGH_SEC</span>
+              <span className="text-[#39ff14]">OPERATIONAL_MODE: HIGH_SEC</span>
             </div>
           </div>
 
           {/* Blink LEDs Panel (Physical simulation) */}
           <div className="flex items-center gap-3 bg-[#111316] px-3 py-1 border border-border-cyber rounded-none">
             <div className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.sys ? 'bg-green-highlight shadow-[0_0_6px_#39ff14]' : 'bg-green-highlight/20'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.sys ? 'bg-[#39ff14] shadow-[0_0_6px_#39ff14]' : 'bg-[#39ff14]/20'}`} />
               <span className="text-[9px] text-muted-slate font-bold">SYS</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.net ? 'bg-cyan-accent shadow-[0_0_6px_#00f0ff]' : 'bg-cyan-accent/20'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.net ? 'bg-[#00f0ff] shadow-[0_0_6px_#00f0ff]' : 'bg-[#00f0ff]/20'}`} />
               <span className="text-[9px] text-muted-slate font-bold">NET</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.gps ? 'bg-warn-amber shadow-[0_0_6px_#ffb300]' : 'bg-warn-amber/20'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.gps ? 'bg-[#ffb300] shadow-[0_0_6px_#ffb300]' : 'bg-[#ffb300]/20'}`} />
               <span className="text-[9px] text-muted-slate font-bold">GPS</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.mem ? 'bg-crit-red shadow-[0_0_6px_#ff3b30]' : 'bg-crit-red/20'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${leds.mem ? 'bg-[#ff3b30] shadow-[0_0_6px_#ff3b30]' : 'bg-[#ff3b30]/20'}`} />
               <span className="text-[9px] text-muted-slate font-bold">RX</span>
             </div>
           </div>
@@ -205,7 +209,7 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
           <div className="flex items-center gap-4 text-xs">
             {/* GPS Signal */}
             <div className="flex items-center gap-1 text-muted-slate">
-              <Compass className={`w-3.5 h-3.5 ${systemStatus.gpsLocked ? 'text-green-highlight' : 'text-crit-red animate-pulse'}`} />
+              <Compass className={`w-3.5 h-3.5 ${systemStatus.gpsLocked ? 'text-[#39ff14]' : 'text-[#ff3b30] animate-pulse'}`} />
               <span className="hidden sm:inline text-[10px] uppercase font-bold text-gray-400">
                 {systemStatus.gpsLocked ? 'GPS: LOCK' : 'GPS: SEARCH'}
               </span>
@@ -213,24 +217,24 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
 
             {/* Signal Strength bars */}
             <div className="flex items-center gap-0.5 text-muted-slate">
-              <Wifi className="w-3.5 h-3.5 text-cyan-accent" />
+              <Wifi className="w-3.5 h-3.5 text-[#00f0ff]" />
               <div className="flex items-end gap-[1px] h-2.5">
-                <div className="w-[2px] h-1.5 bg-cyan-accent" />
-                <div className="w-[2px] h-2 bg-cyan-accent" />
-                <div className="w-[2px] h-2.5 bg-cyan-accent" />
-                <div className="w-[2px] h-3 bg-cyan-accent" />
+                <div className="w-[2px] h-1.5 bg-[#00f0ff]" />
+                <div className="w-[2px] h-2 bg-[#00f0ff]" />
+                <div className="w-[2px] h-2.5 bg-[#00f0ff]" />
+                <div className="w-[2px] h-3 bg-[#00f0ff]" />
               </div>
             </div>
 
             {/* Battery Level */}
             <div className="flex items-center gap-1.5 border-l border-border-cyber pl-3">
               {systemStatus.batteryCharging && (
-                <span className="text-green-highlight text-[9px] font-bold animate-pulse">▲ CHARG •</span>
+                <span className="text-[#39ff14] text-[9px] font-bold animate-pulse">▲ CHARG •</span>
               )}
               <span className="text-gray-300 font-mono text-[11px] font-bold">{systemStatus.batteryLevel}%</span>
               <div className="relative w-7 h-3.5 border border-gray-500 p-[1px] flex items-center bg-black/40">
                 <div 
-                  className={`h-full bg-green-highlight shadow-[0_0_4px_#39ff14] ${systemStatus.batteryCharging ? 'animate-pulse' : ''}`} 
+                  className={`h-full bg-[#39ff14] shadow-[0_0_4px_#39ff14] ${systemStatus.batteryCharging ? 'animate-pulse' : ''}`} 
                   style={{ width: `${systemStatus.batteryLevel}%` }}
                 />
                 <div className="absolute right-[-2px] w-[2px] h-1.5 bg-gray-500 top-[3px]" />
@@ -306,8 +310,76 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
                 <span className="text-muted-slate">DB_USE:</span>
                 <span className="text-green-highlight font-bold">{systemStatus.storageUsage}%</span>
               </div>
+
+              {/* Vertical Menu Trigger Button */}
+              <button
+                onClick={() => { playBeep('click'); setNavOpen(!navOpen); }}
+                className={`ml-2 px-2.5 py-1 border font-bold font-orbitron text-[9px] sm:text-[10px] tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${navOpen ? 'bg-cyan-accent/20 border-cyan-accent text-cyan-accent text-glow-cyan' : 'border-border-cyber text-muted-slate hover:text-white'}`}
+                title="System Navigation Menu"
+              >
+                <Menu className="w-3.5 h-3.5" />
+                <span>NAV_SYS</span>
+                {navOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
             </div>
           </div>
+
+          {/* Sliding Vertical Navigation Panel */}
+          <AnimatePresence>
+            {navOpen && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="absolute top-[41px] right-4 w-52 bg-[#0c0f12]/95 border border-border-cyber shadow-[0_10px_25px_rgba(0,0,0,0.8)] z-40 font-mono divide-y divide-border-cyber/30 overflow-hidden"
+              >
+                <div className="px-3 py-2 bg-black/60 text-muted-slate text-[9px] uppercase tracking-wider font-bold flex justify-between items-center">
+                  <span>SYSTEM_NAVIGATION</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-accent animate-pulse" />
+                </div>
+                <div className="p-2 space-y-1">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    const isSelected = (item.id === 'HOME' && activeModule === 'HOME') ||
+                                       (item.id === 'USER_RECON' && ['USER_RECON', 'DOMAIN_INTEL', 'IMAGE_FORENSICS', 'HASH_LAB', 'SEARCH_BUILDER'].includes(activeModule)) ||
+                                       (item.id === 'DOMAIN_INTEL' && activeModule === 'DOMAIN_INTEL') ||
+                                       (item.id === activeModule);
+                    
+                    const handleHardwareKeyClick = () => {
+                      playBeep('click');
+                      if (item.id === 'USER_RECON') {
+                        setActiveModule('USER_RECON');
+                      } else if (item.id === 'DOMAIN_INTEL') {
+                        setActiveModule('DOMAIN_INTEL');
+                      } else {
+                        setActiveModule(item.id);
+                      }
+                      setNavOpen(false); // Close menu on click
+                    };
+
+                    const selectedClass = isSelected 
+                      ? `bg-cyan-accent/10 text-cyan-accent border-cyan-accent shadow-[0_0_8px_rgba(0,240,255,0.2)]` 
+                      : `bg-black/40 text-muted-slate border-border-cyber/30 hover:text-white hover:border-gray-500`;
+
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={handleHardwareKeyClick}
+                        className={`relative w-full px-3 py-2 border rounded-none transition-all duration-150 flex items-center gap-3 font-orbitron font-bold text-[10px] sm:text-xs cursor-pointer group active:scale-98 ${selectedClass}`}
+                      >
+                        {/* Micro LED light indicator */}
+                        <div className={`absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-3 rounded-full transition-colors duration-150 ${isSelected ? 'bg-cyan-accent shadow-[0_0_4px_#00f0ff]' : 'bg-transparent'}`} />
+                        
+                        <Icon className={`w-4 h-4 transition-transform duration-150 group-hover:scale-110 ml-2 ${isSelected ? 'text-cyan-accent text-glow-cyan' : 'text-muted-slate'}`} />
+                        <span className="tracking-widest">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Actual Viewport Container */}
           <main className="flex-grow flex flex-col p-3 sm:p-5 overflow-y-auto relative z-10 max-h-[calc(100vh-160px)]">
@@ -316,46 +388,14 @@ export const DeviceShell: React.FC<DeviceShellProps> = ({ children }) => {
         </div>
 
         {/* 3. PHYSICAL HARDWARE BOTTOM NAVIGATION ROW */}
-        <div className="bg-[#0a0c0e] border-t-2 border-border-cyber p-3 flex justify-around items-center gap-2 select-none z-10">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isSelected = (item.id === 'HOME' && activeModule === 'HOME') ||
-                               (item.id === 'USER_RECON' && ['USER_RECON', 'DOMAIN_INTEL', 'IMAGE_FORENSICS', 'HASH_LAB', 'SEARCH_BUILDER'].includes(activeModule)) ||
-                               (item.id === 'DOMAIN_INTEL' && activeModule === 'DOMAIN_INTEL') || // wait, SCAN is mapped to dynamic multi-mode or DOMAIN_INTEL? Let's make direct mapping below
-                               (item.id === activeModule);
-            
-            // Handle Custom click mappings for the hardware keys
-            const handleHardwareKeyClick = () => {
-              if (item.id === 'USER_RECON') {
-                // If they click Tools, active tools screen
-                setActiveModule('USER_RECON');
-              } else if (item.id === 'DOMAIN_INTEL') {
-                // This is the active 'SCAN' multi-target parallel module!
-                setActiveModule('DOMAIN_INTEL');
-              } else {
-                setActiveModule(item.id);
-              }
-            };
-
-            const selectedClass = isSelected 
-              ? `bg-[#182027] text-cyan-accent border-cyan-accent shadow-[0_0_12px_rgba(0,240,255,0.4)]` 
-              : `bg-[#0f1215] text-muted-slate border-[#1E252C] hover:text-gray-300 hover:border-gray-500`;
-
-            return (
-              <button
-                key={item.id}
-                onClick={handleHardwareKeyClick}
-                className={`relative px-2 py-2 sm:px-4 sm:py-3 border-2 rounded-none transition-all duration-150 flex flex-col items-center justify-center gap-1 font-orbitron font-bold text-[10px] sm:text-xs min-w-[64px] sm:min-w-[110px] cursor-pointer group active:scale-95 ${selectedClass}`}
-                id={`hardware-nav-${item.id}`}
-              >
-                {/* Micro LED light indicator above key */}
-                <div className={`absolute top-0.5 left-1/2 -translate-x-1/2 w-4 h-1 rounded-full transition-colors duration-150 ${isSelected ? 'bg-cyan-accent shadow-[0_0_4px_#00f0ff]' : 'bg-transparent'}`} />
-                
-                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-150 group-hover:scale-110 ${isSelected ? 'text-cyan-accent text-glow-cyan' : 'text-muted-slate'}`} />
-                <span className="tracking-widest hidden xs:inline">{item.label}</span>
-              </button>
-            );
-          })}
+        <div className="bg-[#0a0c0e] border-t-2 border-border-cyber p-2.5 flex justify-between items-center px-6 select-none z-10 text-[9px] font-mono text-muted-slate">
+          <span>PORT_B: DIRECT_COMMS</span>
+          <div className="flex gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-border-cyber/50" />
+            <span className="w-1.5 h-1.5 rounded-full bg-border-cyber/50" />
+            <span className="w-1.5 h-1.5 rounded-full bg-border-cyber/50" />
+          </div>
+          <span>SECURE_CHASSIS_v4</span>
         </div>
 
       </div>
